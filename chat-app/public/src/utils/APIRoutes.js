@@ -1,5 +1,7 @@
 // Server URI
-export const host = process.env.REACT_APP_SERVER_URI;
+const host = process.env.NODE_ENV === 'production' 
+  ? 'https://securechat-backend-lfld.onrender.com'
+  : 'http://localhost:5000';
 
 // API Routes
 export const registerRoute = `${host}/api/auth/register`;
@@ -8,6 +10,7 @@ export const setAvatarRoute = `${host}/api/auth/setavatar`;
 export const allUsersRoute = `${host}/api/auth/allusers`;
 export const sendMessageRoute = `${host}/api/messages/addmsg`;
 export const getAllMessagesRoute = `${host}/api/messages/getmsg`;
+export const recieveMessageRoute = `${host}/api/messages/getmsg`;
 export const searchMessagesRoute = `${host}/api/messages/search`;
 export const updateProfileRoute = `${host}/api/auth/updateprofile`;
 export const updatePasswordRoute = `${host}/api/auth/updatepassword`;
