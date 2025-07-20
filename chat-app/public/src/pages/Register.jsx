@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import authService from "../services/authService";
 import useDarkMode from "../components/useDarkMode";
 import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
-import { register } from "../services/authService";
+
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -52,27 +52,30 @@ const Register = () => {
 
   // handle form Submit
   const handleSubmit = async (e) => {
-    e.preventDefault(); // prevents reload of page
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
 
-    if (handleValidation()) {
-      try {
-        const { username, email, password } = values;
+  if (handleValidation()) {
+    try {
+      const { username, email, password } = values;
 
-        const response = await register({ username, email, password });
-        if (response.status) {
-          localStorage.setItem("chat-app-user", JSON.stringify(response.user));
-          navigate("/");
-        } else {
-          toast.error(response.msg);
-        }
-      } catch (error) {
-        toast.error("Erreur d'inscription");
+      const result = await authService.register(username, email, password);
+      
+      if (result.success) {
+        // L'utilisateur est déjà stocké dans le sessionStorage par le service
+        navigate("/setAvatar");
+      } else {
+        showToast(result.message);
       }
-    } else {
+    } catch (error) {
+      showToast("Erreur lors de l'inscription");
+    } finally {
       setIsLoading(false);
     }
-  };
+  } else {
+    setIsLoading(false);
+  }
+};
 
   // handle validation
   const handleValidation = () => {
