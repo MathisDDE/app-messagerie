@@ -13,6 +13,9 @@ export const getAllMessagesRoute = `${host}/api/messages/getmsg`;
 export const recieveMessageRoute = `${host}/api/messages/getmsg`;
 export const searchMessagesRoute = `${host}/api/messages/search`;
 export const updateProfileRoute = `${host}/api/auth/updateprofile`;
+export const logoutRoute = `${host}/api/auth/logout`;
+export const meRoute = `${host}/api/auth/me`;
+export const refreshTokenRoute = `${host}/api/auth/refresh`;
 export const updatePasswordRoute = `${host}/api/auth/updatepassword`;
 
 // Admin Routes
