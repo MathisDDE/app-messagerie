@@ -216,8 +216,18 @@ class AuthService {
   }
 }
 
-// Créer l'instance après avoir défini la classe
+// Créer l'instance
 const authService = new AuthService();
 
-// Exporter l'instance
+// Exporter les fonctions individuelles
+export const login = authService.login.bind(authService);
+export const register = authService.register.bind(authService);
+export const logout = authService.logout.bind(authService);
+export const getCurrentUser = authService.getCurrentUser.bind(authService);
+export const refreshToken = authService.refreshToken.bind(authService);
+export const isAuthenticated = authService.isAuthenticated.bind(authService);
+export const getUser = authService.getUser.bind(authService);
+export const updateUser = authService.updateUser.bind(authService);
+
+// Exporter aussi l'instance par défaut
 export default authService; 
