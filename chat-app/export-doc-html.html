@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation Technique - SecureChat</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'default' });</script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 { color: #7c3aed; border-bottom: 3px solid #7c3aed; padding-bottom: 10px; }
+        h2 { color: #5b21b6; margin-top: 40px; }
+        h3 { color: #6d28d9; }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        code {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .mermaid {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        ul, ol { margin-left: 30px; }
+        strong { color: #5b21b6; }
+        .toc {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .toc a {
+            color: #7c3aed;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        @media print {
+            body { background-color: white; }
+            .mermaid { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Documentation Technique - SecureChat</h1>
+    
+    <div class="toc">
+        <h2>Sommaire</h2>
+        <ol>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#regles">Règles de gestion</a></li>
+            <li><a href="#classes">Diagramme de classes</a></li>
+            <li><a href="#activite">Diagramme d'activité</a></li>
+            <li><a href="#sequence">Diagramme de séquence</a></li>
+            <li><a href="#architecture">Architecture technique</a></li>
+            <li><a href="#securite">Sécurité</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+        </ol>
+    </div>
+
+    <div id="intro">
+        <h2>Introduction</h2>
+        <p>SecureChat est une application de messagerie instantanée sécurisée développée avec les technologies modernes du web. Elle offre une communication en temps réel avec chiffrement de bout en bout, gestion des groupes, partage de fichiers et de nombreuses fonctionnalités avancées.</p>
+        
+        <h3>Technologies utilisées</h3>
+        <ul>
+            <li><strong>Frontend</strong> : React.js, Tailwind CSS, Socket.io-client</li>
+            <li><strong>Backend</strong> : Node.js, Express.js, Socket.io</li>
+            <li><strong>Base de données</strong> : PostgreSQL avec Prisma ORM</li>
+            <li><strong>Authentification</strong> : JWT (JSON Web Tokens)</li>
+            <li><strong>Chiffrement</strong> : Crypto-JS (AES-256)</li>
+            <li><strong>Temps réel</strong> : WebSocket via Socket.io</li>
+        </ul>
+    </div>
+
+    <div id="regles">
+        <h2>Règles de gestion</h2>
+        <p><em>Voir le fichier DOCUMENTATION_TECHNIQUE.md pour le détail complet des règles de gestion RG1 à RG6</em></p>
+    </div>
+
+    <div id="classes">
+        <h2>Diagramme de classes</h2>
+        <div class="mermaid">
+            classDiagram
+                class User {
+                    +String id
+                    +String username
+                    +String email
+                    +String password
+                    +String avatarImage
+                    +Boolean isAvatarImageSet
+                    +Boolean isAdmin
+                    +DateTime createdAt
+                    +DateTime updatedAt
+                    +setAvatar()
+                    +authenticate()
+                    +updateProfile()
+                }
+
+                class Message {
+                    +String id
+                    +String message
+                    +Boolean isEdited
+                    +DateTime editedAt
+                    +String fileUrl
+                    +String fileName
+                    +String fileType
+                    +DateTime expiresAt
+                    +DateTime createdAt
+                    +String senderId
+                    +String receiverId
+                    +String replyToId
+                    +encrypt()
+                    +decrypt()
+                    +edit()
+                    +delete()
+                }
+
+                class Group {
+                    +String id
+                    +String name
+                    +String description
+                    +DateTime createdAt
+                    +String createdById
+                    +addMember()
+                    +removeMember()
+                    +updateInfo()
+                }
+
+                class GroupMember {
+                    +String id
+                    +String userId
+                    +String groupId
+                    +GroupRole role
+                    +DateTime joinedAt
+                    +changeRole()
+                    +leave()
+                }
+
+                class GroupMessage {
+                    +String id
+                    +String message
+                    +String fileUrl
+                    +DateTime createdAt
+                    +String senderId
+                    +String groupId
+                    +send()
+                    +delete()
+                }
+
+                class Reaction {
+                    +String id
+                    +String emoji
+                    +String userId
+                    +String messageId
+                    +DateTime createdAt
+                    +add()
+                    +remove()
+                }
+
+                User "1" --> "*" Message : sends
+                User "1" --> "*" Message : receives
+                User "1" --> "*" GroupMember : participates
+                User "1" --> "*" Reaction : creates
+                Group "1" --> "*" GroupMember : contains
+                Group "1" --> "*" GroupMessage : has
+                GroupMember "*" --> "1" User : references
+                GroupMessage "*" --> "1" User : sentBy
+                Message "1" --> "*" Reaction : has
+                Message "1" --> "0..1" Message : replyTo
+        </div>
+    </div>
+
+    <div id="activite">
+        <h2>Diagramme d'activité - Envoi de message</h2>
+        <div class="mermaid">
+            graph TD
+                A[Début] --> B[Utilisateur tape un message]
+                B --> C{Message vide?}
+                C -->|Oui| B
+                C -->|Non| D[Chiffrer le message]
+                D --> E{Fichier joint?}
+                E -->|Oui| F[Upload du fichier]
+                F --> G[Ajouter référence fichier]
+                E -->|Non| H[Préparer payload]
+                G --> H
+                H --> I{Message éphémère?}
+                I -->|Oui| J[Définir expiration]
+                I -->|Non| K[Envoyer via Socket.io]
+                J --> K
+                K --> L[Sauvegarder en BDD]
+                L --> M[Émettre à tous les clients]
+                M --> N[Afficher confirmation]
+                N --> O[Fin]
+        </div>
+    </div>
+
+    <div id="sequence">
+        <h2>Diagramme de séquence - Envoi de message</h2>
+        <div class="mermaid">
+            sequenceDiagram
+                participant U1 as Utilisateur 1
+                participant C1 as Client 1 (React)
+                participant S as Serveur (Node.js)
+                participant DB as Base de données
+                participant C2 as Client 2 (React)
+                participant U2 as Utilisateur 2
+
+                U1->>C1: Tape et envoie message
+                C1->>C1: Chiffre le message (AES-256)
+                C1->>S: Socket.emit('send-msg', data)
+                S->>S: Valide les données
+                S->>DB: Sauvegarde message chiffré
+                DB-->>S: Confirmation
+                S->>C2: Socket.emit('msg-receive', data)
+                C2->>C2: Déchiffre le message
+                C2->>U2: Affiche le message
+                C2-->>S: Accusé de réception
+                S-->>C1: Confirmation d'envoi
+                C1->>U1: Affiche ✓✓
+        </div>
+    </div>
+
+    <div id="architecture">
+        <h2>Architecture technique</h2>
+        <p><em>Architecture 3-tiers avec Frontend React, Backend Node.js et Base de données PostgreSQL</em></p>
+    </div>
+
+    <div id="securite">
+        <h2>Sécurité</h2>
+        <p><em>Voir le fichier DOCUMENTATION_TECHNIQUE.md pour les détails sur les mesures de sécurité</em></p>
+    </div>
+
+    <div id="conclusion">
+        <h2>Conclusion</h2>
+        <p>SecureChat est une application de messagerie moderne et sécurisée qui répond aux besoins actuels de communication en temps réel. L'architecture modulaire et l'utilisation de technologies éprouvées garantissent la scalabilité et la maintenabilité du système.</p>
+    </div>
+
+    <script>
+        // Impression
+        window.print = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html> 

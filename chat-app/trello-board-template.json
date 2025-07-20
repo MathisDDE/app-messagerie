@@ -1,0 +1,135 @@
+{
+  "name": "SecureChat - Roadmap",
+  "desc": "Board de gestion du projet SecureChat - Application de messagerie sécurisée",
+  "prefs": {
+    "background": "purple",
+    "cardCovers": true,
+    "comments": "members",
+    "invitations": "members",
+    "voting": "members"
+  },
+  "labels": [
+    {
+      "name": "priorité-haute",
+      "color": "red"
+    },
+    {
+      "name": "priorité-moyenne",
+      "color": "yellow"
+    },
+    {
+      "name": "priorité-basse",
+      "color": "green"
+    },
+    {
+      "name": "feature",
+      "color": "blue"
+    },
+    {
+      "name": "bug",
+      "color": "red"
+    },
+    {
+      "name": "auth",
+      "color": "purple"
+    },
+    {
+      "name": "sécurité",
+      "color": "orange"
+    },
+    {
+      "name": "core",
+      "color": "black"
+    },
+    {
+      "name": "ui",
+      "color": "pink"
+    },
+    {
+      "name": "testing",
+      "color": "lime"
+    }
+  ],
+  "lists": [
+    {
+      "name": "📝 Backlog",
+      "cards": [
+        {
+          "name": "🏗️ Initialisation du projet",
+          "desc": "Créer la structure de base React + Node.js\n\n**Checklist:**\n- [ ] Setup React avec Create React App\n- [ ] Setup serveur Node.js/Express\n- [ ] Configuration ESLint et Prettier\n- [ ] Setup Git et GitHub",
+          "labels": ["setup", "priorité-haute"]
+        },
+        {
+          "name": "🔐 Système d'authentification",
+          "desc": "Implémenter login/register avec JWT\n\n**Story Points:** 8\n\n**Checklist:**\n- [ ] Page de login\n- [ ] Page d'inscription\n- [ ] Génération tokens JWT\n- [ ] Middleware d'authentification\n- [ ] Gestion des sessions",
+          "labels": ["auth", "priorité-haute", "sécurité"]
+        },
+        {
+          "name": "💬 Interface de chat 1-to-1",
+          "desc": "Chat interface basique\n\n**Story Points:** 13\n\n**Checklist:**\n- [ ] Liste des contacts\n- [ ] Zone de messages\n- [ ] Input de message\n- [ ] Envoi/réception en temps réel",
+          "labels": ["core", "priorité-haute"]
+        },
+        {
+          "name": "🔌 Intégration Socket.io",
+          "desc": "Communication temps réel\n\n**Story Points:** 8\n\n**Checklist:**\n- [ ] Setup Socket.io serveur\n- [ ] Setup Socket.io client\n- [ ] Gestion des événements\n- [ ] Reconnexion automatique",
+          "labels": ["realtime", "priorité-haute"]
+        },
+        {
+          "name": "🔒 Chiffrement des messages",
+          "desc": "Implémenter AES-256\n\n**Story Points:** 8\n\n**Checklist:**\n- [ ] Chiffrement côté client\n- [ ] Déchiffrement côté client\n- [ ] Gestion des clés",
+          "labels": ["sécurité", "priorité-haute"]
+        },
+        {
+          "name": "👥 Création de groupes",
+          "desc": "Permettre la création de groupes\n\n**Story Points:** 8\n\n**Checklist:**\n- [ ] Modal de création\n- [ ] Sélection des membres\n- [ ] Définition des rôles",
+          "labels": ["feature", "priorité-haute"]
+        },
+        {
+          "name": "📁 Partage de fichiers",
+          "desc": "Upload et partage de fichiers\n\n**Story Points:** 8\n\n**Checklist:**\n- [ ] Upload avec multer\n- [ ] Preview des images\n- [ ] Téléchargement sécurisé",
+          "labels": ["feature", "priorité-moyenne"]
+        },
+        {
+          "name": "⏰ Messages éphémères",
+          "desc": "Messages à durée limitée\n\n**Story Points:** 5\n\n**Checklist:**\n- [ ] Timer côté client\n- [ ] Auto-suppression\n- [ ] Indicateur visuel",
+          "labels": ["feature", "priorité-basse"]
+        },
+        {
+          "name": "🌙 Mode sombre",
+          "desc": "Thème sombre/clair\n\n**Story Points:** 3",
+          "labels": ["ui", "priorité-moyenne"]
+        },
+        {
+          "name": "🧪 Tests unitaires Frontend",
+          "desc": "Jest + React Testing Library\n\n**Story Points:** 8",
+          "labels": ["testing", "priorité-moyenne"]
+        },
+        {
+          "name": "🚀 Déploiement Frontend",
+          "desc": "Vercel ou Netlify\n\n**Story Points:** 3",
+          "labels": ["deployment", "priorité-haute"]
+        }
+      ]
+    },
+    {
+      "name": "📌 À faire (Sprint actuel)",
+      "cards": []
+    },
+    {
+      "name": "🔄 En cours",
+      "cards": []
+    },
+    {
+      "name": "🧪 En review/test",
+      "cards": []
+    },
+    {
+      "name": "✅ Terminé",
+      "cards": []
+    },
+    {
+      "name": "🚫 Bloqué",
+      "cards": []
+    }
+  ]
+} 

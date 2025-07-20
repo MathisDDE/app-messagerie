@@ -1,0 +1,41 @@
+{
+  "name": "SecureChat - Messagerie Sécurisée",
+  "short_name": "SecureChat",
+  "description": "Application de messagerie sécurisée avec chiffrement de bout en bout",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#7c3aed",
+  "background_color": "#1f2937",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["social", "communication"],
+  "shortcuts": [
+    {
+      "name": "Nouvelle conversation",
+      "short_name": "Nouveau",
+      "description": "Démarrer une nouvelle conversation",
+      "url": "/chat",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Contacts",
+      "short_name": "Contacts",
+      "description": "Voir tous les contacts",
+      "url": "/contacts",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+} 

@@ -1,0 +1,323 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Protection SQL Injection - Utilisation de Prisma comme ORM sécurisé
+// - Requêtes paramétrées automatiques
+// - Validation des types
+// - Échappement automatique des entrées
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+// Protection SQL Injection - Connexion sécurisée à la base de données
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // URL de connexion sécurisée via variables d'environnement
+}
+
+// Protection SQL Injection - Modèles de données avec types stricts
+model User {
+  id               Int       @id @default(autoincrement())
+  username         String    @unique // Validation d'unicité au niveau DB
+  email            String    @unique // Validation d'unicité au niveau DB
+  password         String    // Stockage du hash uniquement
+  avatarImage      String?
+  isAvatarImageSet Boolean   @default(false)
+  role             Role      @default(USER)
+  isBanned         Boolean   @default(false)
+  bannedAt         DateTime?
+  bannedReason     String?
+  lastLogin        DateTime?
+  createdAt        DateTime  @default(now())
+  // Relations sécurisées avec contraintes référentielles
+  messagesSent     Message[] @relation("SentMessages")
+  messagesReceived Message[] @relation("ReceivedMessages")
+  reactions        Reaction[]
+  activityLogs     ActivityLog[]
+  groupMemberships GroupMember[]
+  createdGroups    Group[]   @relation("GroupCreator")
+  groupMessages    GroupMessage[]
+  
+  // RGPD fields
+  consents         UserConsent[]
+  dataRequests     DataRequest[]
+  deletionRequest  DeletionRequest?
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String
+  iv         String
+  senderId   Int
+  receiverId Int
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  
+  fileUrl    String?
+  fileName   String?
+  fileType   String?
+  
+  replyToId  Int?
+  replyTo    Message? @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies    Message[] @relation("MessageReplies")
+  
+  isEdited   Boolean  @default(false)
+  isDeleted  Boolean  @default(false)
+  deletedAt  DateTime?
+  
+  expiresAt  DateTime?
+  
+  reactions  Reaction[]
+}
+
+model Reaction {
+  id        Int      @id @default(autoincrement())
+  emoji     String
+  userId    Int
+  messageId Int
+  user      User     @relation(fields: [userId], references: [id])
+  message   Message  @relation(fields: [messageId], references: [id])
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, messageId, emoji])
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  details   String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+
+model Group {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String?
+  avatarUrl    String?
+  createdBy    Int
+  creator      User     @relation("GroupCreator", fields: [createdBy], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  members      GroupMember[]
+  messages     GroupMessage[]
+}
+
+model GroupMember {
+  id        Int      @id @default(autoincrement())
+  groupId   Int
+  userId    Int
+  role      GroupRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+  group     Group    @relation(fields: [groupId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  
+  @@unique([groupId, userId])
+}
+
+enum GroupRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+model GroupMessage {
+  id         Int      @id @default(autoincrement())
+  content    String
+  iv         String
+  groupId    Int
+  senderId   Int
+  group      Group    @relation(fields: [groupId], references: [id])
+  sender     User     @relation(fields: [senderId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  fileUrl    String?
+  fileName   String?
+  fileType   String?
+  
+  replyToId  Int?
+  replyTo    GroupMessage? @relation("GroupMessageReplies", fields: [replyToId], references: [id])
+  replies    GroupMessage[] @relation("GroupMessageReplies")
+  
+  isEdited   Boolean  @default(false)
+  isDeleted  Boolean  @default(false)
+  deletedAt  DateTime?
+}
+
+model MessageReport {
+  id           Int      @id @default(autoincrement())
+  messageId    Int
+  reporterId   Int
+  reportType   ReportType
+  reportReason String?
+  status       ReportStatus @default(PENDING)
+  reviewedBy   Int?
+  reviewedAt   DateTime?
+  reviewNotes  String?
+  aiAnalysis   Json?
+  riskScore    Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum ReportType {
+  SPAM
+  PHISHING
+  MALICIOUS_LINK
+  INAPPROPRIATE
+  HARASSMENT
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+model ModerationLog {
+  id          Int      @id @default(autoincrement())
+  messageId   Int
+  senderId    Int
+  action      ModerationAction
+  riskScore   Int
+  analysis    Json
+  blocked     Boolean  @default(false)
+  warned      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+enum ModerationAction {
+  ANALYZED
+  BLOCKED
+  WARNED
+  ALLOWED
+  REPORTED
+}
+
+// RGPD Models
+model UserConsent {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  consentType  ConsentType
+  given        Boolean
+  givenAt      DateTime @default(now())
+  withdrawnAt  DateTime?
+  ipAddress    String?
+  userAgent    String?
+  
+  @@unique([userId, consentType])
+}
+
+enum ConsentType {
+  TERMS_OF_SERVICE
+  PRIVACY_POLICY
+  MARKETING_EMAILS
+  DATA_ANALYTICS
+  COOKIES
+}
+
+model DataRequest {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+  requestType     DataRequestType
+  status          DataRequestStatus @default(PENDING)
+  requestedAt     DateTime @default(now())
+  processedAt     DateTime?
+  processedBy     String?
+  responseUrl     String?
+  notes           String?
+  
+  @@index([userId, status])
+}
+
+enum DataRequestType {
+  ACCESS          // Article 15 - Droit d'accès
+  RECTIFICATION   // Article 16 - Droit de rectification
+  ERASURE         // Article 17 - Droit à l'effacement
+  PORTABILITY     // Article 20 - Droit à la portabilité
+  RESTRICTION     // Article 18 - Droit à la limitation
+  OBJECTION       // Article 21 - Droit d'opposition
+}
+
+enum DataRequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+model DeletionRequest {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique
+  user            User     @relation(fields: [userId], references: [id])
+  requestedAt     DateTime @default(now())
+  scheduledFor    DateTime // 30 jours après la demande
+  reason          String?
+  confirmed       Boolean  @default(false)
+  confirmedAt     DateTime?
+  executedAt      DateTime?
+  cancelled       Boolean  @default(false)
+  cancelledAt     DateTime?
+}
+
+model DataBreach {
+  id                Int      @id @default(autoincrement())
+  detectedAt        DateTime @default(now())
+  reportedToCnil    Boolean  @default(false)
+  reportedAt        DateTime?
+  affectedUsers     Int
+  dataTypes         String[] // Types de données affectées
+  severity          BreachSeverity
+  description       String
+  measures          String   // Mesures prises
+  userNotification  Boolean  @default(false)
+  notifiedAt        DateTime?
+}
+
+enum BreachSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model CookieConsent {
+  id              Int      @id @default(autoincrement())
+  sessionId       String   @unique
+  essential       Boolean  @default(true)
+  analytics       Boolean  @default(false)
+  marketing       Boolean  @default(false)
+  preferences     Boolean  @default(false)
+  consentedAt     DateTime @default(now())
+  ipAddress       String?
+  userAgent       String?
+}
+
+model PrivacyLog {
+  id              Int      @id @default(autoincrement())
+  action          String   // Ex: "data_export", "consent_given", "deletion_request"
+  userId          Int?
+  details         Json?
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime @default(now())
+  
+  @@index([userId, action])
+}
