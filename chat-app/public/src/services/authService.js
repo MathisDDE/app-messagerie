@@ -155,29 +155,13 @@ class AuthService {
       const storedUser = sessionStorage.getItem('user');
       if (storedUser) {
         this.user = JSON.parse(storedUser);
-      }
-
-      // Puis vérifier avec le serveur
-      const response = await axios.get(`${host}/api/auth/me`);
-      
-      if (response.data.status) {
-        this.user = response.data.user;
-        sessionStorage.setItem('user', JSON.stringify(this.user));
         return { success: true, user: this.user };
       }
 
+      // Si pas d'utilisateur en session, pas besoin d'appeler l'API
       return { success: false };
     } catch (error) {
-      // Si c'est une erreur 401, ne pas la propager pour éviter la boucle infinie
-      if (error.response?.status === 401) {
-        this.user = null;
-        sessionStorage.removeItem('user');
-        return { success: false };
-      }
-      
       console.error('Erreur lors de la récupération de l\'utilisateur:', error);
-      this.user = null;
-      sessionStorage.removeItem('user');
       return { success: false };
     }
   }
