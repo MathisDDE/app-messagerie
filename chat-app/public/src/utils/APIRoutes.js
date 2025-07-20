@@ -1,5 +1,5 @@
 // Server URI
-const host = process.env.NODE_ENV === 'production' 
+export const host = process.env.NODE_ENV === 'production'
   ? 'https://securechat-backend-lfld.onrender.com'
   : 'http://localhost:5000';
 
