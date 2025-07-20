@@ -1,0 +1,80 @@
+name: Tests CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: chat_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: chat-app/server/package-lock.json
+
+    - name: Install dependencies
+      working-directory: chat-app/server
+      run: |
+        npm install --legacy-peer-deps
+        npm install -g prisma
+        echo "Dependencies installed"
+        npm list prisma || true
+        npm list @prisma/client || true
+
+    - name: Create env file
+      working-directory: chat-app/server
+      run: |
+        cat > .env.test << EOL
+        DATABASE_URL="postgresql://test:test@localhost:5432/chat_test?schema=public"
+        JWT_SECRET="test-secret-key"
+        COOKIE_SECRET="test-cookie-secret"
+        PORT=5000
+        NODE_ENV=test
+        EOL
+        echo "Env file created"
+        cat .env.test
+
+    - name: Setup Database
+      working-directory: chat-app/server
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Listing files:"
+        ls -la
+        echo "Checking Prisma schema:"
+        cat prisma/schema.prisma
+        echo "Generating Prisma Client..."
+        npx prisma generate
+        echo "Running Prisma migrations..."
+        npx prisma migrate reset --force
+
+    - name: Run tests
+      working-directory: chat-app/server
+      env:
+        DATABASE_URL: "postgresql://test:test@localhost:5432/chat_test?schema=public"
+        NODE_ENV: test
+      run: |
+        echo "Starting tests..."
+        npm test -- --verbose 
