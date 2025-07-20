@@ -43,3 +43,4 @@ export const getCurrentUser = async () => {
     throw error;
   }
 }; 
+export default authService; 
