@@ -1,0 +1,64 @@
+name: Tests CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: chat_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        cd chat-app/server
+        npm install --legacy-peer-deps
+
+    - name: Generate Prisma Client
+      run: |
+        cd chat-app/server
+        npx prisma generate
+
+    - name: Create env file
+      run: |
+        cd chat-app/server
+        cat > .env.test << EOL
+        DATABASE_URL="postgresql://test:test@localhost:5432/chat_test"
+        JWT_SECRET="test-secret-key"
+        COOKIE_SECRET="test-cookie-secret"
+        PORT=5000
+        EOL
+
+    - name: Run Prisma Migrations
+      run: |
+        cd chat-app/server
+        npx prisma migrate deploy
+
+    - name: Run tests
+      run: |
+        cd chat-app/server
+        npm test 
