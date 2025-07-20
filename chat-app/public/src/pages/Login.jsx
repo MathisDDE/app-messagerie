@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/logo.svg";
 import { ToastContainer, toast } from "react-toastify";
-import authService from "../services/authService";
+import { login, getCurrentUser } from "../services/authService";
 import useDarkMode from "../components/useDarkMode";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -37,7 +37,7 @@ const Login = () => {
   // Check if user is logged in
   useEffect(() => {
     const checkAuth = async () => {
-      const result = await authService.getCurrentUser();
+      const result = await getCurrentUser();
       if (result.success) {
         navigate("/home");
       }
@@ -55,19 +55,15 @@ const Login = () => {
       try {
         const { email, password } = values;
 
-        const result = await authService.login(email, password);
+        const response = await login({ email, password });
 
-        if (!result.success) {
-          showToast(result.message);
+        if (response.status) {
+          localStorage.setItem("chat-app-user", JSON.stringify(response.user));
+          navigate("/home");
+        } else {
+          showToast(response.msg);
           setIsLoading(false);
           return;
-        }
-
-        // Success
-        if (result.user.role === "ADMIN") {
-          navigate("/admin");
-        } else {
-          navigate("/home");
         }
       } catch (error) {
         showToast("Une erreur s'est produite. Veuillez réessayer.");
