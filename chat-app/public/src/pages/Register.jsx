@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import authService from "../services/authService";
 import useDarkMode from "../components/useDarkMode";
 import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
+import { register } from "../services/authService";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -58,23 +59,15 @@ const Register = () => {
       try {
         const { username, email, password } = values;
 
-        const result = await authService.register(username, email, password);
-
-        if (!result.success) {
-          if (Array.isArray(result.message)) {
-            result.message.forEach(msg => showToast(msg));
-          } else {
-            showToast(result.message);
-          }
-          setIsLoading(false);
-          return;
+        const response = await register({ username, email, password });
+        if (response.status) {
+          localStorage.setItem("chat-app-user", JSON.stringify(response.user));
+          navigate("/");
+        } else {
+          toast.error(response.msg);
         }
-
-        // Registration success
-        navigate("/setAvatar");
       } catch (error) {
-        showToast("Une erreur s'est produite. Veuillez réessayer.");
-        setIsLoading(false);
+        toast.error("Erreur d'inscription");
       }
     } else {
       setIsLoading(false);
